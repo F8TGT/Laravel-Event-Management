@@ -23,3 +23,8 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('events/attendees', [AttendeeController::class, 'store']);
+    Route::delete('events/{event}/attendees/{attendee}', [AttendeeController::class, 'destroy']);
+});
