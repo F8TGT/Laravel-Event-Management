@@ -14,7 +14,6 @@ class EventController extends Controller
     use CanLoadRelationships;
     private $relations = ['user', 'attendees', 'attendees.user'];
 
-
     /**
      * Display a listing of the resource.
      */
