@@ -8,12 +8,15 @@ use App\Http\Resources\AttendeeResource;
 use App\Http\Traits\CanLoadRelationships;
 use App\Models\Event;
 use App\Models\Attendee;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
 
 class AttendeeController extends Controller
 {
     use CanLoadRelationships;
     private $relations = ['user'];
+
     /**
      * Display a listing of the resource.
      */
@@ -35,7 +38,7 @@ class AttendeeController extends Controller
     {
         $attendee = $this->loadRelationships(
             $event->attendees()->create([
-                'user_id' => 1
+                'user_id' => $request->user()->id
             ])
         );
 
@@ -68,8 +71,6 @@ class AttendeeController extends Controller
         if(Gate::denies('delete-attendee', [$event, $attendee])) {
             abort(403, 'You are not authorized.');
         }
-
-        // $this->authorize('delete-attendee');
 
         $attendee->delete();
 

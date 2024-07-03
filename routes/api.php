@@ -28,3 +28,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('events/attendees', [AttendeeController::class, 'store']);
     Route::delete('events/{event}/attendees/{attendee}', [AttendeeController::class, 'destroy']);
 });
+
+// Throttled Routes
+Route::middleware('throttle:60,1')->group(function () {
+    Route::post('events', [EventController::class, 'store']);
+    Route::put('events/{event}', [EventController::class, 'update']);
+    Route::delete('events/{event}', [EventController::class, 'destroy']);
+});
+
+Route::middleware('throttle:60,1')->group(function () {
+    Route::post('events/attendees', [AttendeeController::class, 'store']);
+    Route::delete('events/{event}/attendees/{attendee}', [AttendeeController::class, 'destroy']);
+});
