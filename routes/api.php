@@ -6,37 +6,30 @@ use App\Http\Controllers\Api\EventController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Public routes
+Route::middleware('auth:sanctum')
+    ->get('/user', function (Request $request) {
+        return $request->user();
+    });
+
 Route::post('/login', [AuthController::class, 'login']);
-Route::apiResource('events', EventController::class)->except(['store', 'update', 'destroy']);
-Route::apiResource('events.attendees', AttendeeController::class)->scoped()->except(['update']);
+Route::post('/logout', [AuthController::class, 'logout'])
+    ->middleware('auth:sanctum');
+
+// Public routes
+Route::apiResource('events', EventController::class)
+    ->only(['index', 'show']);
 
 // Protected routes
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+Route::apiResource('events', EventController::class)
+    ->only(['store', 'update', 'destroy'])
+    ->middleware(['auth:sanctum', 'throttle:api']);
 
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('events', [EventController::class, 'store']);
-    Route::put('events/{event}', [EventController::class, 'update']);
-    Route::delete('events/{event}', [EventController::class, 'destroy']);
+Route::middleware(['auth:sanctum', 'throttle:api'])->group(function () {
+    Route::apiResource('events.attendees', AttendeeController::class)
+        ->scoped()
+        ->only(['store', 'destroy']);
 });
 
-Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('events/attendees', [AttendeeController::class, 'store']);
-    Route::delete('events/{event}/attendees/{attendee}', [AttendeeController::class, 'destroy']);
-});
-
-// Throttled Routes
-Route::middleware('throttle:60,1')->group(function () {
-    Route::post('events', [EventController::class, 'store']);
-    Route::put('events/{event}', [EventController::class, 'update']);
-    Route::delete('events/{event}', [EventController::class, 'destroy']);
-});
-
-Route::middleware('throttle:60,1')->group(function () {
-    Route::post('events/attendees', [AttendeeController::class, 'store']);
-    Route::delete('events/{event}/attendees/{attendee}', [AttendeeController::class, 'destroy']);
-});
+Route::apiResource('events.attendees', AttendeeController::class)
+    ->scoped()
+    ->only(['index', 'show']);
